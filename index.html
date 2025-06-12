@@ -373,99 +373,90 @@
 </div>
         </form>
     </div>
-
-   <script>
-    // قائمة المستخدمين المسموح لهم بالدخول
-    const allowedUsers = [
-        { username: 'admin', password: '772022', redirect: 'https://mohamedesamdeb.github.io/attendance-app/' },
-        { username: 'user1', password: '123456', redirect: 'https://example.com/user1-dashboard' },
-        { username: 'user2', password: '654321', redirect: 'https://example.com/user2-dashboard' },
-    ];
-
-    // تأثير النبض عند النقر
-    document.querySelector('.login-container').addEventListener('click', function(e) {
-        if (e.target.closest('.btn-login, .social-icon')) {
-            const pulse = document.querySelector('.pulse-effect');
-            pulse.style.opacity = '1';
-            pulse.style.transition = 'opacity 0.3s';
-            
-            const rect = e.target.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            pulse.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%)`;
-            
-            setTimeout(() => {
-                pulse.style.opacity = '0';
-            }, 500);
-        }
-    });
-
-    // التحقق من بيانات تسجيل الدخول
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const usernameError = document.getElementById('usernameError');
-        const passwordError = document.getElementById('passwordError');
-        const progressContainer = document.getElementById('progressContainer');
-        const progressBar = document.getElementById('progressBar');
-        const loadingMessage = document.getElementById('loadingMessage');
-        const loginBtn = document.querySelector('.btn-login');
-        
-        // إخفاء رسائل الخطأ
-        usernameError.style.display = 'none';
-        passwordError.style.display = 'none';
-        
-        // البحث عن المستخدم في القائمة
-        const user = allowedUsers.find(u => u.username === username);
-        
-        if (user) {
-            if (user.password === password) {
-                // بيانات صحيحة - إظهار شريط التقدم
-                loginBtn.disabled = true;
-                loadingMessage.style.display = 'block';
-                progressContainer.style.display = 'block';
-                
-                // بدء شريط التقدم
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += 1;
-                    progressBar.style.width = progress + '%';
-                    
-                    if (progress >= 100) {
-                        clearInterval(interval);
-                        // التوجيه إلى الصفحة المخصصة بعد اكتمال الشريط
-                        window.location.href = user.redirect;
-                    }
-                }, 50); // 50 مللي ثانية لكل 1% (5 ثوانٍ لكل 100%)
-                
-            } else {
-                // كلمة المرور غير صحيحة
-                passwordError.style.display = 'block';
-                shakeForm(this);
-            }
-        } else {
-            // اسم المستخدم غير موجود
-            usernameError.style.display = 'block';
-            shakeForm(this);
-        }
-    });
-    
-    // دالة لهز النموذج عند الخطأ
-    function shakeForm(form) {
-        form.style.transform = 'translateX(-5px)';
-        setTimeout(() => {
-            form.style.transform = 'translateX(5px)';
-            setTimeout(() => {
-                form.style.transform = 'translateX(-5px)';
-                setTimeout(() => {
-                    form.style.transform = 'translateX(0)';
-                }, 50);
-            }, 50);
-        }, 50);
+<script>
+  // بيانات المستخدمين المشفرة (Base64)
+  const encodedUsers = [
+    {
+      username: "YWRtaW4=", // admin
+      password: "NzcyMDIy", // 772022
+      redirect: "aHR0cHM6Ly9tb2hhbWVkZXNhbWRlYi5naXRodWIuaW8vYXR0ZW5kYW5jZS1hcHAv" // https://mohamedesamdeb.github.io/attendance-app/
+    },
+    {
+      username: "dXNlcjE=", // user1
+      password: "MTIzNDU2", // 123456
+      redirect: "aHR0cHM6Ly9leGFtcGxlLmNvbS91c2VyMS1kYXNoYm9hcmQ=" // https://example.com/user1-dashboard
+    },
+    {
+      username: "dXNlcjI=", // user2
+      password: "NjU0MzIx", // 654321
+      redirect: "aHR0cHM6Ly9leGFtcGxlLmNvbS91c2VyMi1kYXNoYm9hcmQ=" // https://example.com/user2-dashboard
     }
+  ];
+
+  // دالة لفك التشفير
+  function decode(base64) {
+    return atob(base64);
+  }
+
+  // التحقق من بيانات تسجيل الدخول
+  document.getElementById("loginForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const usernameError = document.getElementById("usernameError");
+    const passwordError = document.getElementById("passwordError");
+    const progressContainer = document.getElementById("progressContainer");
+    const progressBar = document.getElementById("progressBar");
+    const loadingMessage = document.getElementById("loadingMessage");
+    const loginBtn = document.querySelector(".btn-login");
+
+    usernameError.style.display = "none";
+    passwordError.style.display = "none";
+
+    const user = encodedUsers.find(
+      (u) => decode(u.username) === username
+    );
+
+    if (user) {
+      if (decode(user.password) === password) {
+        loginBtn.disabled = true;
+        loadingMessage.style.display = "block";
+        progressContainer.style.display = "block";
+
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 1;
+          progressBar.style.width = progress + "%";
+
+          if (progress >= 100) {
+            clearInterval(interval);
+            window.location.href = decode(user.redirect);
+          }
+        }, 50);
+      } else {
+        passwordError.style.display = "block";
+        shakeForm(this);
+      }
+    } else {
+      usernameError.style.display = "block";
+      shakeForm(this);
+    }
+  });
+
+  function shakeForm(form) {
+    form.style.transform = "translateX(-5px)";
+    setTimeout(() => {
+      form.style.transform = "translateX(5px)";
+      setTimeout(() => {
+        form.style.transform = "translateX(-5px)";
+        setTimeout(() => {
+          form.style.transform = "translateX(0)";
+        }, 50);
+      }, 50);
+    }, 50);
+  }
 </script>
+
 </body>
 </html>
